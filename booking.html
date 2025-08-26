@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reservar Evento - La Acción</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <section class="booking-details">
+      <h2>Detalles de tu Evento</h2>
+      <p id="selectedDate"></p>
+
+      <form class="event-form" onsubmit="goToCheckout(event)">
+        <input type="text" name="clientName" placeholder="Tu Nombre" required />
+        <input
+          type="email"
+          name="clientEmail"
+          placeholder="Tu Correo Electrónico"
+          required
+        />
+        <input
+          type="tel"
+          name="clientPhone"
+          placeholder="Tu Teléfono"
+          required
+        />
+        <input
+          type="text"
+          name="eventLocation"
+          placeholder="Ciudad o Zona del Evento"
+          required
+        />
+        <input
+          type="text"
+          name="eventAddress"
+          placeholder="Dirección Exacta"
+          required
+        />
+        <input
+          type="text"
+          name="eventHoursStartToEnd"
+          placeholder="dia del evento y horas ejemplo: sabado de 6pm a 12am"
+          required
+        />
+        <textarea
+          name="eventNotes"
+          rows="4"
+          placeholder="Detalles adicionales (tipo de evento, número de personas, etc.)"
+        ></textarea>
+        <button type="submit">Confirmar</button>
+      </form>
+    </section>
+
+    <script>
+      // Display the selected date
+      const params = new URLSearchParams(window.location.search);
+      const date = params.get("date");
+      document.getElementById("selectedDate").textContent =
+        "Fecha seleccionada: " + (date || "No especificada");
+
+      function goToCheckout(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        // Redirect to checkout with data in query params
+        const query = new URLSearchParams(data).toString();
+        window.location.href = `checkout.html?${query}&date=${encodeURIComponent(
+          date
+        )}`;
+      }
+    </script>
+  </body>
+</html>

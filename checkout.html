@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout - La Acción</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <section class="checkout-section">
+      <h2>Resumen de tu Reserva</h2>
+      <div class="summary" id="reservationSummary">
+        <!-- Summary will be inserted by JS -->
+      </div>
+
+      <div class="contract-box">
+        <h3>Contrato</h3>
+
+        <!-- PDF Preview -->
+        <iframe
+          src="assets/Contrato la acción.pdf"
+          type="application/pdf"
+          width="100%"
+          height="700px"
+          style="border: 1px solid #ffffff; border-radius: 10px"
+        ></iframe>
+        <p class="contract-note">
+          Al confirmar, aceptas los terminos y condiciones del contrato.
+        </p>
+      </div>
+
+      <button class="pay-btn" onclick="confirmBooking()">Confirmar</button>
+    </section>
+
+    <script>
+      function getReservationDetails() {
+        const params = new URLSearchParams(window.location.search);
+        const details = {};
+        for (const [key, value] of params.entries()) {
+          details[key] = decodeURIComponent(value);
+        }
+        return details;
+      }
+
+      function showSummary() {
+        const details = getReservationDetails();
+        const summary = document.getElementById("reservationSummary");
+        summary.innerHTML = `
+        <p><strong>Nombre:</strong> ${details.clientName}</p>
+        <p><strong>Correo:</strong> ${details.clientEmail}</p>
+        <p><strong>Teléfono:</strong> ${details.clientPhone}</p>
+        <p><strong>Fecha del Evento:</strong> ${
+          details.date || "No especificada"
+        }</p>
+        <p><strong>Dia y Horas del Evento:</strong> ${
+          details.eventHoursStartToEnd
+        }</p>
+        <p><strong>Ciudad/Zona:</strong> ${details.eventLocation}</p>
+        <p><strong>Dirección:</strong> ${details.eventAddress}</p>
+        
+        <p><strong>Detalles Adicionales:</strong> ${
+          details.eventNotes || "N/A"
+        }</p>
+        <p><strong>Total a Pagar:</strong> $850 USD (Deposito) <small>Se cobrara una vez que nuestro equipo se contacte contigo para confirmar tu evento y se discutan los diferentes metodos de pago que tenemos dispoibles</small></p>
+      `;
+      }
+
+      function confirmBooking() {
+        alert(
+          "Gracias por reservar con La Acción. Te contactaremos pronto para confirmar tu evento."
+        );
+        // In the future: redirect to payment gateway or backend
+      }
+
+      document.addEventListener("DOMContentLoaded", showSummary);
+    </script>
+  </body>
+</html>
