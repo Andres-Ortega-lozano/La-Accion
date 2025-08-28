@@ -1,11 +1,32 @@
 
-// mobil toggle burger nav
-const menuToggle = document.querySelector(".menu-toggle");
-  const navLinks = document.querySelector(".nav-links");
 
-  menuToggle.addEventListener("click", () => {
-    navLinks.classList.toggle("active");
-  }); 
+// mobile toggle burger nav
+const menuToggle = document.querySelector(".menu-toggle");
+const navLinks = document.querySelector(".nav-links");
+const navItems = document.querySelectorAll(".nav-links a");
+
+// Toggle menu when clicking burger
+menuToggle.addEventListener("click", (e) => {
+  e.stopPropagation(); // prevent immediate close
+  navLinks.classList.toggle("active");
+});
+
+// Close menu when clicking any link
+navItems.forEach(link => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("active");
+  });
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", (e) => {
+  if (navLinks.classList.contains("active") && 
+      !navLinks.contains(e.target) && 
+      !menuToggle.contains(e.target)) {
+    navLinks.classList.remove("active");
+  }
+});
+
 
 
 
@@ -220,26 +241,38 @@ const menuToggle = document.querySelector(".menu-toggle");
   });
 
 
-
-  // PHONE FUNCTION SWIPE, AND ANIMATION
+  // PHONE VIDEO SECTION SWIPE AND ANIMATION ON TOUCH
 
   document.addEventListener("DOMContentLoaded", () => {
-    const carousel = document.querySelector(".video-carousel");
-    const slides = document.querySelector(".video-slides");
-    const totalSlides = document.querySelectorAll(".video-slide").length;
+    const track = document.querySelector(".video-track");
+    const slides = document.querySelectorAll(".video-slide");
+    const totalSlides = slides.length;
+    const dotsContainer = document.querySelector(".carousel-dots");
+    const prevBtn = document.querySelector(".carousel-arrow.prev");
+    const nextBtn = document.querySelector(".carousel-arrow.next");
   
     let currentIndex = 0;
     let startX = 0;
-    let currentTranslate = 0;
     let isDragging = false;
+    let currentTranslate = 0;
     let autoplayInterval;
+  
+    // Create dots dynamically
+    slides.forEach((_, i) => {
+      const dot = document.createElement("span");
+      dot.classList.add("dot");
+      if (i === 0) dot.classList.add("active");
+      dot.addEventListener("click", () => showSlide(i));
+      dotsContainer.appendChild(dot);
+    });
   
     function showSlide(index) {
       if (index < 0) index = totalSlides - 1;
       if (index >= totalSlides) index = 0;
-      slides.style.transition = "transform 0.3s ease";
-      slides.style.transform = `translateX(-${index * 100}%)`;
       currentIndex = index;
+      currentTranslate = -index * track.clientWidth;
+      track.style.transition = "transform 0.3s ease";
+      track.style.transform = `translateX(${currentTranslate}px)`;
       updateDots();
     }
   
@@ -249,49 +282,43 @@ const menuToggle = document.querySelector(".menu-toggle");
       });
     }
   
-    // Start autoplay
     function startAutoplay() {
       autoplayInterval = setInterval(() => {
         showSlide(currentIndex + 1);
-      }, 4000); // 4s per slide
+      }, 4000);
     }
   
-    // Stop autoplay (when user interacts)
     function stopAutoplay() {
       clearInterval(autoplayInterval);
     }
   
-    // Touch events
-    carousel.addEventListener("touchstart", (e) => {
+    // Desktop arrows
+    prevBtn.addEventListener("click", () => showSlide(currentIndex - 1));
+    nextBtn.addEventListener("click", () => showSlide(currentIndex + 1));
+  
+    // Touch events for mobile swipe
+    track.addEventListener("touchstart", (e) => {
       stopAutoplay();
       startX = e.touches[0].clientX;
       isDragging = true;
-      slides.style.transition = "none"; // disable smooth animation during drag
+      track.style.transition = "none";
     });
   
-    carousel.addEventListener("touchmove", (e) => {
+    track.addEventListener("touchmove", (e) => {
       if (!isDragging) return;
-      const currentX = e.touches[0].clientX;
-      const diff = currentX - startX;
-      currentTranslate = -currentIndex * carousel.offsetWidth + diff;
-      slides.style.transform = `translateX(${currentTranslate}px)`;
+      const diff = e.touches[0].clientX - startX;
+      track.style.transform = `translateX(${currentTranslate + diff}px)`;
     });
   
-    carousel.addEventListener("touchend", (e) => {
+    track.addEventListener("touchend", (e) => {
       isDragging = false;
       const diff = e.changedTouches[0].clientX - startX;
-  
-      if (Math.abs(diff) > carousel.offsetWidth * 0.25) {
-        if (diff < 0) {
-          showSlide(currentIndex + 1); // swipe left → next
-        } else {
-          showSlide(currentIndex - 1); // swipe right → prev
-        }
+      if (Math.abs(diff) > track.clientWidth * 0.25) {
+        if (diff < 0) showSlide(currentIndex + 1);
+        else showSlide(currentIndex - 1);
       } else {
         showSlide(currentIndex);
       }
-  
-      // resume autoplay after 2s
       setTimeout(startAutoplay, 2000);
     });
   
@@ -300,158 +327,110 @@ const menuToggle = document.querySelector(".menu-toggle");
     startAutoplay();
   });
   
+  
+  
 
   // INSTAGRAM AECTION
 
   
   const track = document.getElementById('carouselTrack');
-  const dotsContainer = document.getElementById('carouselDots');
-  let currentIndex = 0;
+const dotsContainer = document.getElementById('carouselDots');
+let currentIndex = 0;
 
-  function getSlidesPerView() {
-    return window.innerWidth <= 768 ? 1 : 3;
+function getSlidesPerView() {
+  return window.innerWidth <= 768 ? 1 : 3;
+}
+
+function updateCarousel() {
+  const slidesPerView = getSlidesPerView();
+  const totalSlides = track.children.length;
+  const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
+
+  currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+  const translateX = (currentIndex * 100) / slidesPerView;
+  track.style.transition = "transform 0.5s ease"; // smooth slide
+  track.style.transform = `translateX(-${translateX}%)`;
+
+  // Update dots
+  const dots = dotsContainer.querySelectorAll("span");
+  dots.forEach((dot, index) => dot.classList.toggle("active", index === currentIndex));
+}
+
+function moveCarousel(direction) {
+  const slidesPerView = getSlidesPerView();
+  const totalSlides = track.children.length;
+  const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
+
+  currentIndex += direction;
+  currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+  updateCarousel();
+}
+
+function setupDots() {
+  dotsContainer.innerHTML = '';
+  const slidesPerView = getSlidesPerView();
+  const totalSlides = track.children.length;
+  const dotCount = Math.ceil(totalSlides / slidesPerView);
+
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement("span");
+    dot.addEventListener("click", () => { currentIndex = i; updateCarousel(); });
+    dotsContainer.appendChild(dot);
   }
+}
 
-  function updateCarousel() {
-    const slidesPerView = getSlidesPerView();
-    const totalSlides = track.children.length;
-    const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
+// -------------------- Swipe with drag --------------------
+let startX = 0;
+let currentTranslate = 0;
+let prevTranslate = 0;
+let isDragging = false;
+let animationID = 0;
 
-    // Clamp currentIndex
-    currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+track.addEventListener("touchstart", startDrag);
+track.addEventListener("touchmove", drag);
+track.addEventListener("touchend", endDrag);
 
-    
-    const slideWidth = 100 / slidesPerView;
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-
-
-    // Update dots
-    const dots = dotsContainer.querySelectorAll("span");
-    dots.forEach((dot, index) => {
-      dot.classList.toggle("active", index === currentIndex);
-    });
-  }
-
-  function moveCarousel(direction) {
-    const slidesPerView = getSlidesPerView();
-    const totalSlides = track.children.length;
-    const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
-
-    currentIndex += direction;
-    currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
-
-    updateCarousel();
-  }
-
-  function setupDots() {
-    dotsContainer.innerHTML = ''; // Clear existing dots
-    const slidesPerView = getSlidesPerView();
-    const totalSlides = track.children.length;
-    const dotCount = Math.ceil(totalSlides / slidesPerView);
-
-    for (let i = 0; i < dotCount; i++) {
-      const dot = document.createElement("span");
-      dot.addEventListener("click", () => {
-        currentIndex = i;
-        updateCarousel();
-      });
-      dotsContainer.appendChild(dot);
-    }
-  }
-
-  function initializeCarousel() {
-    setupDots();
-    updateCarousel();
-    if (window.instgrm) window.instgrm.Embeds.process();
-  }
-
-  window.addEventListener("load", initializeCarousel);
-  window.addEventListener("resize", () => {
-    setupDots();
-    updateCarousel();
-  });
-
-
-
-// Phone slide version instagram
-
-  function getSlidesPerView() {
-    return window.innerWidth <= 768 ? 1 : 3; // 1 on phone, 3 on desktop
-  }
-  
-  function updateCarousel() {
-    const slidesPerView = getSlidesPerView();
-    const totalSlides = track.children.length;
-    const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
-  
-    // Clamp currentIndex
-    currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
-  
-    if (slidesPerView === 1) {
-      // 📱 On phone: move by exact slide width
-      const slideWidth = track.children[0].offsetWidth;
-      track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-    } else {
-      // 💻 On desktop: keep your original %
-      track.style.transform = `translateX(-${currentIndex * 100}%)`;
-    }
-  
-    // Update dots
-    const dots = dotsContainer.querySelectorAll("span");
-    dots.forEach((dot, index) => {
-      dot.classList.toggle("active", index === currentIndex);
-    });
-  }
-  
-
-
-
-
-
-
-
-  // INSTAGRAM AECTION pone touch verson
-
-  let startX = 0;
-let isSwiping = false;
-
-track.addEventListener("touchstart", (e) => {
+function startDrag(e) {
   startX = e.touches[0].clientX;
-  isSwiping = true;
-});
+  isDragging = true;
+  animationID = requestAnimationFrame(animation);
+  track.style.transition = "none"; // disable transition while dragging
+}
 
-track.addEventListener("touchmove", (e) => {
-  if (!isSwiping) return;
-  const deltaX = e.touches[0].clientX - startX;
-  // Prevent scrolling while swiping carousel
-  if (Math.abs(deltaX) > 10) {
-    e.preventDefault();
-  }
-});
+function drag(e) {
+  if (!isDragging) return;
+  const currentX = e.touches[0].clientX;
+  const movedX = currentX - startX;
+  const slideWidth = track.offsetWidth / track.children.length;
+  currentTranslate = prevTranslate + (movedX / slideWidth) * (100 / getSlidesPerView());
+}
 
-track.addEventListener("touchend", (e) => {
-  if (!isSwiping) return;
-  const endX = e.changedTouches[0].clientX;
-  const diff = startX - endX;
+function endDrag(e) {
+  cancelAnimationFrame(animationID);
+  isDragging = false;
 
-  if (Math.abs(diff) > 50) {
-    if (diff > 0) {
-      moveCarousel(1); // Swipe left = next
-    } else {
-      moveCarousel(-1); // Swipe right = prev
-    }
-  }
+  const movedX = e.changedTouches[0].clientX - startX;
+  if (movedX < -50) moveCarousel(1); // swipe left
+  else if (movedX > 50) moveCarousel(-1); // swipe right
+  else updateCarousel(); // small drag, snap back
 
-  isSwiping = false;
-});
+  prevTranslate = (currentIndex * 100) / getSlidesPerView();
+}
 
+function animation() {
+  track.style.transform = `translateX(-${currentTranslate}%)`;
+  if (isDragging) requestAnimationFrame(animation);
+}
 
+// -------------------- Initialize --------------------
+function initializeCarousel() {
+  setupDots();
+  updateCarousel();
+  if (window.instgrm) window.instgrm.Embeds.process();
+}
 
-
-
-
-
-
+window.addEventListener("load", initializeCarousel);
+window.addEventListener("resize", () => { setupDots(); updateCarousel(); });
 
 
 

@@ -75,30 +75,44 @@ body {
   /* Stack header elements */
   .header {
     flex-wrap: wrap;
+    position: relative; /* keep nav contained */
   }
 
-  /* Hide nav by default */
+  /* Mobile nav base state */
   .nav-links {
-    display: none;
-    flex-direction: column;
+    position: absolute;
+    top: 100%; /* directly below header */
+    left: 0;
     width: 100%;
     background: var(--black-color);
+    flex-direction: column;
     text-align: center;
-    padding: 1rem 0;
+    padding: 0;
+
+    /* hidden state */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    z-index: 1000;
   }
 
   /* Show nav when active */
   .nav-links.active {
-    display: flex;
+    max-height: 300px; /* adjust depending on how many links */
+    padding: 1rem 0;
   }
 
   /* Show hamburger on mobile */
   .menu-toggle {
     display: block;
+    cursor: pointer;
+    z-index: 1100;
   }
 
   .nav-links a {
     margin: 10px 0;
+    display: block;
+    padding: 0.5rem 0;
   }
 }
 
@@ -719,19 +733,28 @@ body {
 
   .about-text {
     max-width: 100%;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     text-align: center;
   }
 
   .about h2 {
+    margin-top: 4rem;
     font-size: 2rem;
-    margin-top: 20px;
   }
 
   .about p {
     font-size: 1rem;
     line-height: 1.5;
-    font-weight: normal;
+    font-weight: bold;
+  }
+
+  .styled-paragraph {
+    border: 1px solid #e8d556;
+    padding: 10px;
+    margin: 4px auto;
+    border-radius: 5px;
+    box-shadow: 0 0 40px rgba(232, 74, 74, 1);
+    background-color: #cac4a0;
   }
 }
 
@@ -897,7 +920,17 @@ body {
 }
 
 /* 📱 Responsive Media Section */
-@media (max-width: 768px) {
+/* Base Desktop (2 videos per slide) */
+.video-slide {
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 columns for desktop */
+  gap: 20px;
+  padding: 10px;
+}
+
+/* Mobile and tablets */
+@media (max-width: 1024px) {
   .media-back-section {
     padding: 0 10px;
   }
@@ -912,49 +945,73 @@ body {
     font-size: 1.8rem;
     margin-bottom: 1rem;
   }
-
   .video-slide {
-    grid-template-columns: 1fr; /* stack videos vertically */
+    grid-template-columns: 1fr 1fr; /* keep 2 columns for tablets */
+    gap: 15px;
+  }
+
+  .video-slide iframe {
+    height: 300px; /* smaller than desktop, still 2 per row */
+  }
+}
+
+@media (max-width: 768px) {
+  .media-back-section {
+    padding: 0 10px;
+  }
+
+  .media-back-section {
+    position: relative;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    background: linear-gradient(to bottom, black, #d3d3d3 50%, black);
+    padding: 2rem;
+    z-index: -1;
+  }
+
+  .media-section {
+    padding: 15px;
+    width: 100%;
+    height: 70%;
+    border-radius: 16px;
+  }
+
+  .media-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  .video-slide {
+    grid-template-columns: 1fr; /* 1 video per row for phones */
     gap: 15px;
     padding: 0;
   }
 
   .video-slide iframe {
-    height: 220px; /* smaller video height for mobile */
-    border-radius: 12px;
+    height: 220px;
   }
 
   .carousel-arrow {
-    font-size: 2rem;
-    padding: 5px;
-    top: 45%;
-    display: none;
+    display: none; /* hide arrows on mobile */
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
   }
 
   .carousel-dots .dot {
     height: 10px;
     width: 10px;
   }
-
-  .media-section h3 {
-    font-size: 1.2rem;
-    margin-top: 1.5rem;
-  }
-
-  .social-links {
-    gap: 20px;
-    flex-wrap: wrap; /* wrap icons if space is tight */
-  }
-
-  .social-links svg {
-    width: 28px;
-    height: 28px;
-  }
 }
 
 @media (max-width: 480px) {
   .video-slide iframe {
-    height: 180px; /* even smaller on very small phones */
+    height: 180px;
   }
 
   .media-section h2 {
@@ -1052,8 +1109,11 @@ body {
 
 @media (max-width: 768px) {
   .carousel-slide {
-    flex: 0 0 auto; /* lock slide size */
-  }
+    flex: 0 0 100%;
+  } /* 1 slide per view */
+  .carousel-nav {
+    display: none;
+  } /* hide arrows on mobile */
 
   .carousel-section {
     padding: 1.5rem;
@@ -1081,7 +1141,6 @@ body {
   .carousel-dots {
     text-align: center;
     margin-top: 1rem;
-    display: none;
   }
 }
 
