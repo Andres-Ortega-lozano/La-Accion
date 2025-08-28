@@ -75,7 +75,7 @@ body {
   /* Stack header elements */
   .header {
     flex-wrap: wrap;
-    position: relative; /* keep nav contained */
+    position: sticky; /* keep nav contained */
   }
 
   /* Mobile nav base state */
@@ -305,7 +305,7 @@ body {
   .social-links svg {
     width: 24px;
     height: 24px;
-    margin: 0 8px;
+    margin: 0 4px;
   }
 
   .hero-img {
@@ -958,18 +958,8 @@ body {
 @media (max-width: 768px) {
   .media-back-section {
     padding: 0 10px;
-  }
-
-  .media-back-section {
-    position: relative;
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
+    z-index: 1;
     min-height: 50vh;
-    background: linear-gradient(to bottom, black, #d3d3d3 50%, black);
-    padding: 2rem;
-    z-index: -1;
   }
 
   .media-section {

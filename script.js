@@ -189,64 +189,11 @@ document.addEventListener("click", (e) => {
   });
 
 
-  // media SECTION
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const track = document.querySelector(".video-track");
-    const slides = Array.from(document.querySelectorAll(".video-slide"));
-    const nextButton = document.querySelector(".carousel-arrow.next");
-    const prevButton = document.querySelector(".carousel-arrow.prev");
-    const dotsContainer = document.querySelector(".carousel-dots");
-
-    let currentSlide = 0;
-
-    // Create dots
-    slides.forEach((_, index) => {
-      const dot = document.createElement("span");
-      dot.classList.add("dot");
-      if (index === 0) dot.classList.add("active");
-      dot.addEventListener("click", () => goToSlide(index));
-      dotsContainer.appendChild(dot);
-    });
-
-    const updateCarousel = () => {
-      const slideWidth = slides[0].offsetWidth;
-      track.style.transform = `translateX(-${slideWidth * currentSlide}px)`;
-
-      // Update active dot
-      document.querySelectorAll(".dot").forEach((dot, i) => {
-        dot.classList.toggle("active", i === currentSlide);
-      });
-    };
-
-    const goToSlide = (index) => {
-      if (index >= 0 && index < slides.length) {
-        currentSlide = index;
-        updateCarousel();
-      }
-    };
-
-    nextButton.addEventListener("click", () => {
-      currentSlide = (currentSlide + 1) % slides.length;
-      updateCarousel();
-    });
-
-    prevButton.addEventListener("click", () => {
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-      updateCarousel();
-    });
-
-    // Responsive adjustment (optional)
-    window.addEventListener("resize", updateCarousel);
-  });
-
-
-  // PHONE VIDEO SECTION SWIPE AND ANIMATION ON TOUCH
+  // MEDIA CODE ARROW AND PHONE SWIPE
 
   document.addEventListener("DOMContentLoaded", () => {
     const track = document.querySelector(".video-track");
     const slides = document.querySelectorAll(".video-slide");
-    const totalSlides = slides.length;
     const dotsContainer = document.querySelector(".carousel-dots");
     const prevBtn = document.querySelector(".carousel-arrow.prev");
     const nextBtn = document.querySelector(".carousel-arrow.next");
@@ -257,7 +204,7 @@ document.addEventListener("click", (e) => {
     let currentTranslate = 0;
     let autoplayInterval;
   
-    // Create dots dynamically
+    // Create dots
     slides.forEach((_, i) => {
       const dot = document.createElement("span");
       dot.classList.add("dot");
@@ -266,11 +213,15 @@ document.addEventListener("click", (e) => {
       dotsContainer.appendChild(dot);
     });
   
+    function getSlideWidth() {
+      return slides[0].offsetWidth; // use single slide width, not track
+    }
+  
     function showSlide(index) {
-      if (index < 0) index = totalSlides - 1;
-      if (index >= totalSlides) index = 0;
+      if (index < 0) index = slides.length - 1;
+      if (index >= slides.length) index = 0;
       currentIndex = index;
-      currentTranslate = -index * track.clientWidth;
+      currentTranslate = -index * getSlideWidth();
       track.style.transition = "transform 0.3s ease";
       track.style.transform = `translateX(${currentTranslate}px)`;
       updateDots();
@@ -292,11 +243,11 @@ document.addEventListener("click", (e) => {
       clearInterval(autoplayInterval);
     }
   
-    // Desktop arrows
-    prevBtn.addEventListener("click", () => showSlide(currentIndex - 1));
-    nextBtn.addEventListener("click", () => showSlide(currentIndex + 1));
+    // Arrows (desktop only)
+    prevBtn?.addEventListener("click", () => showSlide(currentIndex - 1));
+    nextBtn?.addEventListener("click", () => showSlide(currentIndex + 1));
   
-    // Touch events for mobile swipe
+    // Swipe (mobile only)
     track.addEventListener("touchstart", (e) => {
       stopAutoplay();
       startX = e.touches[0].clientX;
@@ -313,11 +264,11 @@ document.addEventListener("click", (e) => {
     track.addEventListener("touchend", (e) => {
       isDragging = false;
       const diff = e.changedTouches[0].clientX - startX;
-      if (Math.abs(diff) > track.clientWidth * 0.25) {
+      if (Math.abs(diff) > getSlideWidth() / 4) {
         if (diff < 0) showSlide(currentIndex + 1);
         else showSlide(currentIndex - 1);
       } else {
-        showSlide(currentIndex);
+        showSlide(currentIndex); // snap back
       }
       setTimeout(startAutoplay, 2000);
     });
@@ -325,7 +276,11 @@ document.addEventListener("click", (e) => {
     // Init
     showSlide(0);
     startAutoplay();
+  
+    // Fix resize issues
+    window.addEventListener("resize", () => showSlide(currentIndex));
   });
+  
   
   
   
