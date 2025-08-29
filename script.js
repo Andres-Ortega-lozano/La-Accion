@@ -236,7 +236,7 @@ document.addEventListener("click", (e) => {
     function startAutoplay() {
       autoplayInterval = setInterval(() => {
         showSlide(currentIndex + 1);
-      }, 4000);
+      }, 8000);
     }
   
     function stopAutoplay() {

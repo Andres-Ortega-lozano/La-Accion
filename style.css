@@ -1023,7 +1023,7 @@ body {
   }
 
   .video-wrapper {
-    height: 220px; /* sets iframe height via wrapper */
+    height: 180px; /* sets iframe height via wrapper */
   }
 
   .video-wrapper iframe {
