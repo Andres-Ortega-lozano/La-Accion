@@ -807,10 +807,13 @@ body {
 .video-track {
   display: flex;
   transition: transform 0.5s ease-in-out;
+  width: 100%;
+  transition: transform 0.3s ease-in-out;
+  touch-action: pan-y; /* allows vertical scroll + horizontal swipe */
 }
 
 .video-slide {
-  min-width: 100%;
+  flex: 0 0 100%; /* each slide takes full viewport width     this is revert min widht 100% */
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
@@ -823,8 +826,8 @@ body {
   height: 500px;
   border-radius: 8px;
   border: 1px solid #f44336;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .video-slide iframe:hover {
