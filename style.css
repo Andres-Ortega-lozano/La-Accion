@@ -1004,14 +1004,30 @@ body {
     font-size: 1.8rem;
     margin-bottom: 1rem;
   }
+
+  /*
   .video-slide {
-    grid-template-columns: 1fr; /* 1 video per row for phones */
+    grid-template-columns: 1fr; 
     gap: 15px;
     padding: 0;
   }
 
   .video-slide iframe {
     height: 220px;
+  }
+   */
+  .video-slide {
+    grid-template-columns: 1fr; /* 1 video per row */
+    gap: 15px;
+    padding: 0;
+  }
+
+  .video-wrapper {
+    height: 220px; /* sets iframe height via wrapper */
+  }
+
+  .video-wrapper iframe {
+    height: 100%; /* fills wrapper */
   }
 
   .carousel-arrow {
