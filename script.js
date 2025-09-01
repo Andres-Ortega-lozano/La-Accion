@@ -1,5 +1,9 @@
 
 
+
+
+
+
 // mobile toggle burger nav
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
@@ -189,106 +193,168 @@ document.addEventListener("click", (e) => {
   });
 
 
-  // MEDIA CODE ARROW AND PHONE SWIPE
+  // =======================
+// MEDIA CAROUSEL WITH SWIPE + AUTOPLAY + YOUTUBE
+// =======================
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const track = document.querySelector(".video-track");
-    const slides = document.querySelectorAll(".video-slide");
-    const dotsContainer = document.querySelector(".carousel-dots");
-    const prevBtn = document.querySelector(".carousel-arrow.prev");
-    const nextBtn = document.querySelector(".carousel-arrow.next");
-  
-    let currentIndex = 0;
-    let startX = 0;
-    let isDragging = false;
-    let currentTranslate = 0;
-    let autoplayInterval;
-  
-    // Create dots
-    slides.forEach((_, i) => {
-      const dot = document.createElement("span");
-      dot.classList.add("dot");
-      if (i === 0) dot.classList.add("active");
-      dot.addEventListener("click", () => showSlide(i));
-      dotsContainer.appendChild(dot);
+// =======================
+// MEDIA CAROUSEL + SWIPE + AUTOPLAY + YOUTUBE
+// =======================
+
+const MediaCarousel = (() => {
+  // Elements
+  const track = document.querySelector(".video-track");
+  const slides = Array.from(document.querySelectorAll(".video-slide"));
+  const dotsContainer = document.querySelector(".carousel-dots");
+  const prevBtn = document.querySelector(".carousel-arrow.prev");
+  const nextBtn = document.querySelector(".carousel-arrow.next");
+
+  let currentIndex = 0;
+  let startX = 0;
+  let isDragging = false;
+  let autoplayInterval;
+  const slideCount = slides.length;
+
+  // ------------------------
+  // Create dots
+  // ------------------------
+  slides.forEach((_, i) => {
+    const dot = document.createElement("span");
+    dot.classList.add("dot");
+    if (i === 0) dot.classList.add("active");
+    dot.addEventListener("click", () => showSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  // ------------------------
+  // Helper functions
+  // ------------------------
+  const getSlideWidth = () => slides[0].offsetWidth;
+
+  const updateDots = () => {
+    document.querySelectorAll(".dot").forEach((dot, i) => {
+      dot.classList.toggle("active", i === currentIndex);
     });
-  
-    function getSlideWidth() {
-      return slides[0].offsetWidth; // use single slide width, not track
-    }
-  
-    function showSlide(index) {
-      if (index < 0) index = slides.length - 1;
-      if (index >= slides.length) index = 0;
-      currentIndex = index;
-      currentTranslate = -index * getSlideWidth();
-      track.style.transition = "transform 0.3s ease";
-      track.style.transform = `translateX(${currentTranslate}px)`;
-      updateDots();
-    }
-  
-    function updateDots() {
-      document.querySelectorAll(".dot").forEach((dot, i) => {
-        dot.classList.toggle("active", i === currentIndex);
-      });
-    }
-  
-    function startAutoplay() {
-      autoplayInterval = setInterval(() => {
-        showSlide(currentIndex + 1);
-      }, 8000);
-    }
-  
-    function stopAutoplay() {
-      clearInterval(autoplayInterval);
-    }
-  
-    // Arrows (desktop only)
-    prevBtn?.addEventListener("click", () => showSlide(currentIndex - 1));
-    nextBtn?.addEventListener("click", () => showSlide(currentIndex + 1));
-  
-    // Swipe (mobile only)
-    track.addEventListener("touchstart", (e) => {
+  };
+
+  const showSlide = (index) => {
+    if (index < 0) index = slideCount - 1;
+    if (index >= slideCount) index = 0;
+    currentIndex = index;
+    track.style.transition = "transform 0.3s ease";
+    track.style.transform = `translateX(${-currentIndex * getSlideWidth()}px)`;
+    updateDots();
+  };
+
+  const startAutoplay = () => {
+    stopAutoplay();
+    autoplayInterval = setInterval(() => {
+      showSlide(currentIndex + 1);
+    }, 7000);
+  };
+
+  const stopAutoplay = () => {
+    if (autoplayInterval) clearInterval(autoplayInterval);
+  };
+
+  // Make globally accessible for YouTube API
+  window.startAutoplay = startAutoplay;
+  window.stopAutoplay = stopAutoplay;
+
+  // ------------------------
+  // Arrows
+  // ------------------------
+  prevBtn?.addEventListener("click", () => showSlide(currentIndex - 1));
+  nextBtn?.addEventListener("click", () => showSlide(currentIndex + 1));
+
+  // ------------------------
+  // Swipe for mobile
+  // ------------------------
+  slides.forEach((slide) => {
+    slide.addEventListener("touchstart", (e) => {
       stopAutoplay();
       startX = e.touches[0].clientX;
       isDragging = true;
       track.style.transition = "none";
     });
-  
-    track.addEventListener("touchmove", (e) => {
+
+    slide.addEventListener("touchmove", (e) => {
       if (!isDragging) return;
       const diff = e.touches[0].clientX - startX;
-      track.style.transform = `translateX(${currentTranslate + diff}px)`;
+      track.style.transform = `translateX(${-currentIndex * getSlideWidth() + diff}px)`;
     });
-  
-    track.addEventListener("touchend", (e) => {
+
+    slide.addEventListener("touchend", (e) => {
+      if (!isDragging) return;
       isDragging = false;
       const diff = e.changedTouches[0].clientX - startX;
       if (Math.abs(diff) > getSlideWidth() / 4) {
         if (diff < 0) showSlide(currentIndex + 1);
         else showSlide(currentIndex - 1);
       } else {
-        showSlide(currentIndex); // snap back
+        showSlide(currentIndex);
       }
-      setTimeout(startAutoplay, 2000);
+      startAutoplay();
     });
-  
-    // Init
-    showSlide(0);
-    startAutoplay();
-  
-    // Fix resize issues
-    window.addEventListener("resize", () => showSlide(currentIndex));
   });
-  
-  
-  
-  
 
-  // INSTAGRAM AECTION
+  // ------------------------
+  // Click on video stops autoplay
+  // ------------------------
+  document.querySelectorAll(".video-wrapper iframe").forEach((iframe) => {
+    iframe.addEventListener("click", () => {
+      stopAutoplay();
+    });
+  });
+
+  // ------------------------
+  // Resize handler
+  // ------------------------
+  window.addEventListener("resize", () => showSlide(currentIndex));
+
+  // ------------------------
+  // Init carousel
+  // ------------------------
+  showSlide(0);
+  startAutoplay();
+
+  // Expose methods for YouTube API
+  return {
+    startAutoplay,
+    stopAutoplay
+  };
+})();
+
+// =======================
+// YOUTUBE API
+// =======================
+let players = [];
+
+function onYouTubeIframeAPIReady() {
+  document.querySelectorAll(".video-wrapper iframe").forEach((iframe) => {
+    const player = new YT.Player(iframe, {
+      events: {
+        onStateChange: (event) => {
+          if (event.data === YT.PlayerState.PLAYING) {
+            MediaCarousel.stopAutoplay();
+          } else if (
+            event.data === YT.PlayerState.PAUSED ||
+            event.data === YT.PlayerState.ENDED
+          ) {
+            MediaCarousel.startAutoplay();
+          }
+        }
+      }
+    });
+    players.push(player);
+  });
+}
+
+
+// INSTAGRAM AECTION
 
   
-  const track = document.getElementById('carouselTrack');
+const track = document.getElementById('carouselTrack');
 const dotsContainer = document.getElementById('carouselDots');
 let currentIndex = 0;
 
@@ -386,8 +452,6 @@ function initializeCarousel() {
 
 window.addEventListener("load", initializeCarousel);
 window.addEventListener("resize", () => { setupDots(); updateCarousel(); });
-
-
 
 
 
