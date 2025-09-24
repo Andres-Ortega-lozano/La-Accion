@@ -352,7 +352,7 @@ function onYouTubeIframeAPIReady() {
 
 
 // ===============================
-// Instagram Carousel - Mobile Friendly
+// Instagram Carousel - Mobile Friendly + Swipe
 // ===============================
 
 const track = document.getElementById('carouselTrack');
@@ -411,7 +411,45 @@ function moveCarousel(direction) {
   updateCarousel();
 }
 
-// Initialize carousel
+// ===============================
+// Swipe Support (Mobile)
+// ===============================
+let startX = 0;
+let isDragging = false;
+
+track.addEventListener("touchstart", (e) => {
+  startX = e.touches[0].clientX;
+  isDragging = true;
+  track.style.transition = "none"; // disable smooth animation while dragging
+});
+
+track.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+  const currentX = e.touches[0].clientX;
+  const movedX = currentX - startX;
+
+  // Move visually while dragging
+  const slidesPerView = getSlidesPerView();
+  const translateX = (currentIndex * 100) / slidesPerView - (movedX / track.offsetWidth) * 100;
+  track.style.transform = `translateX(-${translateX}%)`;
+});
+
+track.addEventListener("touchend", (e) => {
+  isDragging = false;
+  const movedX = e.changedTouches[0].clientX - startX;
+
+  if (movedX < -50) {
+    moveCarousel(1); // swipe left
+  } else if (movedX > 50) {
+    moveCarousel(-1); // swipe right
+  } else {
+    updateCarousel(); // snap back if swipe is too small
+  }
+});
+
+// ===============================
+// Init
+// ===============================
 function initializeCarousel() {
   setupDots();
   updateCarousel();
@@ -420,7 +458,6 @@ function initializeCarousel() {
 
 window.addEventListener('load', initializeCarousel);
 window.addEventListener('resize', () => { setupDots(); updateCarousel(); });
-
 
   // REVIEW SECTION
 
