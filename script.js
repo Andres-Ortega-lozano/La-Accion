@@ -351,19 +351,21 @@ function onYouTubeIframeAPIReady() {
 }
 
 
+
 // ===============================
-// Instagram Carousel - Mobile Friendly + Swipe
+// Instagram Carousel with Swipe Overlay
 // ===============================
 
 const track = document.getElementById('carouselTrack');
 const dotsContainer = document.getElementById('carouselDots');
 let currentIndex = 0;
 
+// Slides per view (1 on mobile, 3 on desktop)
 function getSlidesPerView() {
-  return window.innerWidth <= 768 ? 1 : 3; // 1 slide on mobile, 3 on desktop
+  return window.innerWidth <= 768 ? 1 : 3;
 }
 
-// Create dots dynamically
+// Setup dots
 function setupDots() {
   dotsContainer.innerHTML = '';
   const totalSlides = track.children.length;
@@ -380,7 +382,7 @@ function setupDots() {
   }
 }
 
-// Update carousel and dots
+// Update carousel
 function updateCarousel() {
   const slidesPerView = getSlidesPerView();
   const totalSlides = track.children.length;
@@ -391,61 +393,86 @@ function updateCarousel() {
   track.style.transition = "transform 0.5s ease";
   track.style.transform = `translateX(-${translateX}%)`;
 
-  // Update dots
+  // Dots update
   const dots = Array.from(dotsContainer.children);
   dots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
 
-  // Slide visible dots window (4 max)
+  // Show only 4 dots max
   const visibleDots = 4;
-  const start = Math.min(Math.max(currentIndex - Math.floor(visibleDots/2), 0), dots.length - visibleDots);
+  const start = Math.min(Math.max(currentIndex - Math.floor(visibleDots / 2), 0), dots.length - visibleDots);
   const end = start + visibleDots;
-
   dots.forEach((dot, i) => {
     dot.style.display = (i >= start && i < end) ? 'inline-block' : 'none';
   });
 }
 
-// Move carousel (arrows or swipe)
+// Move carousel
 function moveCarousel(direction) {
   currentIndex += direction;
   updateCarousel();
 }
 
 // ===============================
-// Swipe Support (Mobile)
+// Swipe handling
 // ===============================
 let startX = 0;
+let currentTranslate = 0;
+let prevTranslate = 0;
 let isDragging = false;
+let animationID = 0;
 
-track.addEventListener("touchstart", (e) => {
+track.addEventListener("touchstart", startDrag);
+track.addEventListener("touchmove", drag);
+track.addEventListener("touchend", endDrag);
+
+function startDrag(e) {
   startX = e.touches[0].clientX;
   isDragging = true;
-  track.style.transition = "none"; // disable smooth animation while dragging
-});
+  animationID = requestAnimationFrame(animation);
+  track.style.transition = "none";
+}
 
-track.addEventListener("touchmove", (e) => {
+function drag(e) {
   if (!isDragging) return;
   const currentX = e.touches[0].clientX;
   const movedX = currentX - startX;
+  const slideWidth = track.offsetWidth / getSlidesPerView();
+  currentTranslate = prevTranslate + (movedX / slideWidth) * (100 / getSlidesPerView());
+}
 
-  // Move visually while dragging
-  const slidesPerView = getSlidesPerView();
-  const translateX = (currentIndex * 100) / slidesPerView - (movedX / track.offsetWidth) * 100;
-  track.style.transform = `translateX(-${translateX}%)`;
-});
-
-track.addEventListener("touchend", (e) => {
+function endDrag(e) {
+  cancelAnimationFrame(animationID);
   isDragging = false;
-  const movedX = e.changedTouches[0].clientX - startX;
 
-  if (movedX < -50) {
-    moveCarousel(1); // swipe left
-  } else if (movedX > 50) {
-    moveCarousel(-1); // swipe right
-  } else {
-    updateCarousel(); // snap back if swipe is too small
-  }
-});
+  const movedX = e.changedTouches[0].clientX - startX;
+  if (movedX < -50) moveCarousel(1);
+  else if (movedX > 50) moveCarousel(-1);
+  else updateCarousel();
+
+  prevTranslate = (currentIndex * 100) / getSlidesPerView();
+}
+
+function animation() {
+  track.style.transform = `translateX(-${currentTranslate}%)`;
+  if (isDragging) requestAnimationFrame(animation);
+}
+
+// ===============================
+// Overlay handler with auto return
+// ===============================
+function enableOverlays() {
+  document.querySelectorAll('.swipe-overlay').forEach(overlay => {
+    overlay.addEventListener('click', () => {
+      overlay.classList.add('hidden'); // allow interaction
+
+      // Restore overlay after delay (e.g. 10 seconds)
+      setTimeout(() => {
+        overlay.classList.remove('hidden');
+      }, 10000); // 10s
+    });
+  });
+}
+
 
 // ===============================
 // Init
@@ -453,6 +480,7 @@ track.addEventListener("touchend", (e) => {
 function initializeCarousel() {
   setupDots();
   updateCarousel();
+  enableOverlays();
   if (window.instgrm) window.instgrm.Embeds.process();
 }
 
