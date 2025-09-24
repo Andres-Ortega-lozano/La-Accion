@@ -1049,13 +1049,11 @@ body {
   }
 }
 
-/*instagram*/
-
+/* ----------------- Instagram Carousel ----------------- */
 .carousel-section {
   position: relative;
-
   background: linear-gradient(to bottom, black, #ad4b9b 50%, black);
-  padding: 2rem;
+  padding: 2rem 1rem;
   text-align: center;
   z-index: 1;
 }
@@ -1095,33 +1093,34 @@ body {
 }
 
 .carousel-section h2 {
-  color: rgb(255, 255, 255);
-  padding: 1rem;
+  color: #fff;
   font-size: 2rem;
-}
-
-.carousel-nav:hover {
-  background: #f44336;
+  margin-bottom: 1rem;
 }
 
 .carousel-prev {
   left: 10px;
 }
-
 .carousel-next {
   right: 10px;
 }
 
 .carousel-dots {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
   margin-top: 1rem;
+  flex-wrap: nowrap; /* prevent extra dots from wrapping */
+  overflow: hidden;
+  max-width: 160px; /* 4 dots max visible */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .carousel-dots span {
   display: inline-block;
   width: 12px;
   height: 12px;
-  margin: 0 5px;
   background-color: #888;
   border-radius: 50%;
   cursor: pointer;
@@ -1132,41 +1131,21 @@ body {
   background-color: #f44336;
 }
 
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .carousel-slide {
     flex: 0 0 100%;
+    padding: 0;
   } /* 1 slide per view */
   .carousel-nav {
     display: none;
   } /* hide arrows on mobile */
-
   .carousel-section {
-    padding: 1.5rem;
+    padding: 1.5rem 0;
   }
-
-  .carousel-wrapper {
-    max-width: 100%;
-
-    margin: auto;
-  }
-
-  .carousel-slide {
-    padding: 0;
-  }
-  .carousel-prev {
-    left: 10px;
-    display: none;
-  }
-
-  .carousel-next {
-    right: 10px;
-    display: none;
-  }
-
   .carousel-dots {
-    text-align: center;
-    margin-top: 1rem;
-  }
+    max-width: 120px;
+  } /* smaller width for mobile dots */
 }
 
 .review-background {

@@ -351,17 +351,36 @@ function onYouTubeIframeAPIReady() {
 }
 
 
-// INSTAGRAM AECTION
+// ===============================
+// Instagram Carousel - Mobile Friendly
+// ===============================
 
-  
 const track = document.getElementById('carouselTrack');
 const dotsContainer = document.getElementById('carouselDots');
 let currentIndex = 0;
 
 function getSlidesPerView() {
-  return window.innerWidth <= 768 ? 1 : 3;
+  return window.innerWidth <= 768 ? 1 : 3; // 1 slide on mobile, 3 on desktop
 }
 
+// Create dots dynamically
+function setupDots() {
+  dotsContainer.innerHTML = '';
+  const totalSlides = track.children.length;
+  const slidesPerView = getSlidesPerView();
+  const dotCount = Math.ceil(totalSlides / slidesPerView);
+
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement('span');
+    dot.addEventListener('click', () => {
+      currentIndex = i;
+      updateCarousel();
+    });
+    dotsContainer.appendChild(dot);
+  }
+}
+
+// Update carousel and dots
 function updateCarousel() {
   const slidesPerView = getSlidesPerView();
   const totalSlides = track.children.length;
@@ -369,92 +388,38 @@ function updateCarousel() {
 
   currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
   const translateX = (currentIndex * 100) / slidesPerView;
-  track.style.transition = "transform 0.5s ease"; // smooth slide
+  track.style.transition = "transform 0.5s ease";
   track.style.transform = `translateX(-${translateX}%)`;
 
   // Update dots
-  const dots = dotsContainer.querySelectorAll("span");
-  dots.forEach((dot, index) => dot.classList.toggle("active", index === currentIndex));
+  const dots = Array.from(dotsContainer.children);
+  dots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
+
+  // Slide visible dots window (4 max)
+  const visibleDots = 4;
+  const start = Math.min(Math.max(currentIndex - Math.floor(visibleDots/2), 0), dots.length - visibleDots);
+  const end = start + visibleDots;
+
+  dots.forEach((dot, i) => {
+    dot.style.display = (i >= start && i < end) ? 'inline-block' : 'none';
+  });
 }
 
+// Move carousel (arrows or swipe)
 function moveCarousel(direction) {
-  const slidesPerView = getSlidesPerView();
-  const totalSlides = track.children.length;
-  const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
-
   currentIndex += direction;
-  currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
   updateCarousel();
 }
 
-function setupDots() {
-  dotsContainer.innerHTML = '';
-  const slidesPerView = getSlidesPerView();
-  const totalSlides = track.children.length;
-  const dotCount = Math.ceil(totalSlides / slidesPerView);
-
-  for (let i = 0; i < dotCount; i++) {
-    const dot = document.createElement("span");
-    dot.addEventListener("click", () => { currentIndex = i; updateCarousel(); });
-    dotsContainer.appendChild(dot);
-  }
-}
-
-// -------------------- Swipe with drag --------------------
-let startX = 0;
-let currentTranslate = 0;
-let prevTranslate = 0;
-let isDragging = false;
-let animationID = 0;
-
-track.addEventListener("touchstart", startDrag);
-track.addEventListener("touchmove", drag);
-track.addEventListener("touchend", endDrag);
-
-function startDrag(e) {
-  startX = e.touches[0].clientX;
-  isDragging = true;
-  animationID = requestAnimationFrame(animation);
-  track.style.transition = "none"; // disable transition while dragging
-}
-
-function drag(e) {
-  if (!isDragging) return;
-  const currentX = e.touches[0].clientX;
-  const movedX = currentX - startX;
-  const slideWidth = track.offsetWidth / track.children.length;
-  currentTranslate = prevTranslate + (movedX / slideWidth) * (100 / getSlidesPerView());
-}
-
-function endDrag(e) {
-  cancelAnimationFrame(animationID);
-  isDragging = false;
-
-  const movedX = e.changedTouches[0].clientX - startX;
-  if (movedX < -50) moveCarousel(1); // swipe left
-  else if (movedX > 50) moveCarousel(-1); // swipe right
-  else updateCarousel(); // small drag, snap back
-
-  prevTranslate = (currentIndex * 100) / getSlidesPerView();
-}
-
-function animation() {
-  track.style.transform = `translateX(-${currentTranslate}%)`;
-  if (isDragging) requestAnimationFrame(animation);
-}
-
-// -------------------- Initialize --------------------
+// Initialize carousel
 function initializeCarousel() {
   setupDots();
   updateCarousel();
   if (window.instgrm) window.instgrm.Embeds.process();
 }
 
-window.addEventListener("load", initializeCarousel);
-window.addEventListener("resize", () => { setupDots(); updateCarousel(); });
-
-
-
+window.addEventListener('load', initializeCarousel);
+window.addEventListener('resize', () => { setupDots(); updateCarousel(); });
 
 
   // REVIEW SECTION
