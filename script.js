@@ -356,7 +356,7 @@ function onYouTubeIframeAPIReady() {
 // ===============================
 // Instagram Carousel - Mobile Friendly
 // ===============================
-// Instagram Carousel - Stable Swipe + Auto Reset
+// Instagram Carousel - Stable Swipe + Tap-to-Play
 // ===============================
 
 const track = document.getElementById("carouselTrack");
@@ -416,9 +416,8 @@ let startX = 0,
   startY = 0;
 let isDragging = false;
 let hasMovedHorizontally = false;
-let resetTimeout;
 
-// Add invisible overlay on top of iframe during swipe
+// Overlay only used while dragging
 const overlay = document.createElement("div");
 overlay.style.position = "absolute";
 overlay.style.top = 0;
@@ -426,30 +425,19 @@ overlay.style.left = 0;
 overlay.style.right = 0;
 overlay.style.bottom = 0;
 overlay.style.zIndex = 5;
-overlay.style.display = "none"; // default hidden
-track.style.position = "relative"; // ensure positioning
+overlay.style.pointerEvents = "none"; // allow taps through by default
+overlay.style.display = "none";
+track.style.position = "relative";
 track.appendChild(overlay);
-
-function enableOverlay() {
-  overlay.style.display = "block";
-  clearTimeout(resetTimeout);
-}
-/*
-function disableOverlay() {
-  overlay.style.display = "none";
-  // auto re-enable after 3s (adjust as needed)
-  resetTimeout = setTimeout(() => {
-    overlay.style.display = "block";
-  }, 3000);
-} */
 
 track.addEventListener("touchstart", (e) => {
   startX = e.touches[0].clientX;
   startY = e.touches[0].clientY;
   isDragging = true;
   hasMovedHorizontally = false;
-  track.style.transition = "none"; // disable transition while dragging
-  overlay.style.display = "none"; // don't block tap yet
+  track.style.transition = "none";
+  overlay.style.display = "none";
+  overlay.style.pointerEvents = "none"; // allow taps on videos
 });
 
 track.addEventListener("touchmove", (e) => {
@@ -460,12 +448,14 @@ track.addEventListener("touchmove", (e) => {
 
   if (!hasMovedHorizontally) {
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
-      hasMovedHorizontally = true; // lock to horizontal
-      overlay.style.display = "block"; // now lock iframe for swipe
+      hasMovedHorizontally = true;
+      overlay.style.display = "block";
+      overlay.style.pointerEvents = "all"; // block iframe during swipe
       e.preventDefault();
     } else if (Math.abs(dy) > Math.abs(dx)) {
-      isDragging = false; // vertical scroll
+      isDragging = false;
       overlay.style.display = "none";
+      overlay.style.pointerEvents = "none";
       return;
     }
   }
@@ -480,7 +470,9 @@ track.addEventListener("touchmove", (e) => {
 
 track.addEventListener("touchend", (e) => {
   if (!hasMovedHorizontally) {
-    overlay.style.display = "none"; // tap goes through
+    // Tap passes through to Instagram iframe
+    overlay.style.display = "none";
+    overlay.style.pointerEvents = "none";
     return;
   }
 
@@ -491,10 +483,11 @@ track.addEventListener("touchend", (e) => {
 
   updateCarousel();
   isDragging = false;
-  overlay.style.display = "none"; // remove overlay after swipe
+  overlay.style.display = "none";
+  overlay.style.pointerEvents = "none"; // restore taps
 });
 
-// -------------------- Init --------------------
+// -------------------- Initialize --------------------
 function initializeCarousel() {
   setupDots();
   updateCarousel();
@@ -506,7 +499,6 @@ window.addEventListener("resize", () => {
   setupDots();
   updateCarousel();
 });
-
 
   // REVIEW SECTION
 
