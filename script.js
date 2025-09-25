@@ -356,41 +356,16 @@ function onYouTubeIframeAPIReady() {
 // ===============================
 // Instagram Carousel - Mobile Friendly
 // ===============================
-// ===============================
-// Instagram Carousel - Mobile Friendly
+// Instagram Carousel - Stable Swipe + Auto Reset
 // ===============================
 
-const track = document.getElementById('carouselTrack');
-const dotsContainer = document.getElementById('carouselDots');
+const track = document.getElementById("carouselTrack");
+const dotsContainer = document.getElementById("carouselDots");
 let currentIndex = 0;
 
-// Swipe state
-let startX = 0;
-let currentTranslate = 0;
-let prevTranslate = 0;
-let isDragging = false;
-let animationID = 0;
-let isSwipe = false; // differentiate swipe vs tap
-
+// -------------------- Helpers --------------------
 function getSlidesPerView() {
   return window.innerWidth <= 768 ? 1 : 3;
-}
-
-// -------------------- Dots --------------------
-function setupDots() {
-  dotsContainer.innerHTML = '';
-  const totalSlides = track.children.length;
-  const slidesPerView = getSlidesPerView();
-  const dotCount = Math.ceil(totalSlides / slidesPerView);
-
-  for (let i = 0; i < dotCount; i++) {
-    const dot = document.createElement('span');
-    dot.addEventListener('click', () => {
-      currentIndex = i;
-      updateCarousel();
-    });
-    dotsContainer.appendChild(dot);
-  }
 }
 
 function updateCarousel() {
@@ -400,94 +375,137 @@ function updateCarousel() {
 
   currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
   const translateX = (currentIndex * 100) / slidesPerView;
-  track.style.transition = "transform 0.5s ease";
+  track.style.transition = "transform 0.3s ease";
   track.style.transform = `translateX(-${translateX}%)`;
 
   // Update dots
   const dots = Array.from(dotsContainer.children);
-  dots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
+  dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
 
-  // Limit visible dots to 4
+  // Show only 4 dots window
   const visibleDots = 4;
-  const start = Math.min(Math.max(currentIndex - Math.floor(visibleDots / 2), 0), dots.length - visibleDots);
+  const start = Math.min(
+    Math.max(currentIndex - Math.floor(visibleDots / 2), 0),
+    dots.length - visibleDots
+  );
   const end = start + visibleDots;
+
   dots.forEach((dot, i) => {
-    dot.style.display = (i >= start && i < end) ? 'inline-block' : 'none';
+    dot.style.display = i >= start && i < end ? "inline-block" : "none";
   });
 }
 
-// -------------------- Carousel movement --------------------
-function moveCarousel(direction) {
-  currentIndex += direction;
-  updateCarousel();
+function setupDots() {
+  dotsContainer.innerHTML = "";
+  const totalSlides = track.children.length;
+  const slidesPerView = getSlidesPerView();
+  const dotCount = Math.ceil(totalSlides / slidesPerView);
+
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement("span");
+    dot.addEventListener("click", () => {
+      currentIndex = i;
+      updateCarousel();
+    });
+    dotsContainer.appendChild(dot);
+  }
 }
 
-// -------------------- Swipe --------------------
-function touchStart(e) {
+// -------------------- Swipe logic --------------------
+let startX = 0,
+  startY = 0;
+let isDragging = false;
+let hasMovedHorizontally = false;
+let resetTimeout;
+
+// Add invisible overlay on top of iframe during swipe
+const overlay = document.createElement("div");
+overlay.style.position = "absolute";
+overlay.style.top = 0;
+overlay.style.left = 0;
+overlay.style.right = 0;
+overlay.style.bottom = 0;
+overlay.style.zIndex = 5;
+overlay.style.display = "none"; // default hidden
+track.style.position = "relative"; // ensure positioning
+track.appendChild(overlay);
+
+function enableOverlay() {
+  overlay.style.display = "block";
+  clearTimeout(resetTimeout);
+}
+/*
+function disableOverlay() {
+  overlay.style.display = "none";
+  // auto re-enable after 3s (adjust as needed)
+  resetTimeout = setTimeout(() => {
+    overlay.style.display = "block";
+  }, 3000);
+} */
+
+track.addEventListener("touchstart", (e) => {
   startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
   isDragging = true;
-  isSwipe = false;
-  animationID = requestAnimationFrame(animation);
-  track.style.transition = "none";
-}
+  hasMovedHorizontally = false;
+  track.style.transition = "none"; // disable transition while dragging
+  overlay.style.display = "none"; // don't block tap yet
+});
 
-function touchMove(e) {
+track.addEventListener("touchmove", (e) => {
   if (!isDragging) return;
-  const currentX = e.touches[0].clientX;
-  const diff = currentX - startX;
 
-  if (Math.abs(diff) > 10) isSwipe = true; // flag as swipe if moved enough
+  const dx = e.touches[0].clientX - startX;
+  const dy = e.touches[0].clientY - startY;
 
-  const slideWidth = track.offsetWidth / track.children.length;
-  currentTranslate = prevTranslate + (diff / slideWidth) * (100 / getSlidesPerView());
-}
-
-function touchEnd(e) {
-  cancelAnimationFrame(animationID);
-  isDragging = false;
-
-  const movedX = e.changedTouches[0].clientX - startX;
-  if (isSwipe) {
-    // handle swipe
-    if (movedX < -50) moveCarousel(1);
-    else if (movedX > 50) moveCarousel(-1);
-    else updateCarousel();
-  } else {
-    // handle tap
-    const slide = track.children[currentIndex];
-    const iframe = slide.querySelector('iframe');
-    if (iframe) {
-      iframe.contentWindow.postMessage(
-        '{"event":"command","func":"playVideo","args":""}',
-        '*'
-      );
+  if (!hasMovedHorizontally) {
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      hasMovedHorizontally = true; // lock to horizontal
+      overlay.style.display = "block"; // now lock iframe for swipe
+      e.preventDefault();
+    } else if (Math.abs(dy) > Math.abs(dx)) {
+      isDragging = false; // vertical scroll
+      overlay.style.display = "none";
+      return;
     }
   }
 
-  prevTranslate = (currentIndex * 100) / getSlidesPerView();
-}
+  if (hasMovedHorizontally) {
+    const slidesPerView = getSlidesPerView();
+    const translateX =
+      (currentIndex * 100) / slidesPerView - (dx / track.offsetWidth) * 100;
+    track.style.transform = `translateX(-${translateX}%)`;
+  }
+});
 
-function animation() {
-  track.style.transform = `translateX(-${currentTranslate}%)`;
-  if (isDragging) requestAnimationFrame(animation);
-}
+track.addEventListener("touchend", (e) => {
+  if (!hasMovedHorizontally) {
+    overlay.style.display = "none"; // tap goes through
+    return;
+  }
 
-// -------------------- Initialization --------------------
+  const dx = e.changedTouches[0].clientX - startX;
+
+  if (dx < -50) currentIndex++;
+  else if (dx > 50) currentIndex--;
+
+  updateCarousel();
+  isDragging = false;
+  overlay.style.display = "none"; // remove overlay after swipe
+});
+
+// -------------------- Init --------------------
 function initializeCarousel() {
   setupDots();
   updateCarousel();
-
-  // Attach swipe events to track
-  track.addEventListener('touchstart', touchStart);
-  track.addEventListener('touchmove', touchMove);
-  track.addEventListener('touchend', touchEnd);
-
-  // Re-render Instagram embeds
   if (window.instgrm) window.instgrm.Embeds.process();
 }
 
-window.addEventListener('load', initializeCarousel);
-window.addEventListener('resize', () => { setupDots(); updateCarousel(); });
+window.addEventListener("load", initializeCarousel);
+window.addEventListener("resize", () => {
+  setupDots();
+  updateCarousel();
+});
 
 
   // REVIEW SECTION
