@@ -43,18 +43,23 @@ document.addEventListener("click", (e) => {
  
 
 
-
  document.addEventListener("DOMContentLoaded", () => {
   const body = document.body;
 
   const modals = {
     info: document.getElementById("customModal"),
     contract: document.getElementById("contractExampleModal"),
+    about1: document.getElementById("aboutModal1"),
+    about2: document.getElementById("aboutModal2"),
+    about3: document.getElementById("aboutModal3"),
   };
 
   const openers = new Map([
     [document.getElementById("openModalBtn"), modals.info],
     [document.getElementById("openContractExampleBtn"), modals.contract],
+    [document.getElementById("openAboutModal1"), modals.about1],
+    [document.getElementById("openAboutModal2"), modals.about2],
+    [document.getElementById("openAboutModal3"), modals.about3],
   ]);
 
   let activeModal = null;
@@ -66,7 +71,7 @@ document.addEventListener("click", (e) => {
     "textarea",
     "input",
     "select",
-    "[tabindex]:not([tabindex='-1'])"
+    "[tabindex]:not([tabindex='-1'])",
   ].join(",");
 
   function lockScroll() { body.classList.add("no-scroll"); }
@@ -87,7 +92,6 @@ document.addEventListener("click", (e) => {
     lockScroll();
     activeModal = modalEl;
 
-    // Focus first focusable (or the modal content itself)
     const first = getFocusables(modalEl)[0] || modalEl.querySelector(".modal-content") || modalEl;
     first.focus();
   }
@@ -101,28 +105,24 @@ document.addEventListener("click", (e) => {
     if (lastOpener) lastOpener.focus();
   }
 
-  // Wire up open buttons
+  // Open buttons
   openers.forEach((modalEl, btn) => {
     if (!btn) return;
     btn.addEventListener("click", () => openModal(modalEl, btn));
   });
 
-  // Wire up close buttons + click outside for each modal
+  // Close buttons + outside click
   Object.values(modals).forEach((modalEl) => {
     if (!modalEl) return;
-
-    // Close buttons inside this modal
     modalEl.querySelectorAll(".close").forEach((btn) => {
       btn.addEventListener("click", () => closeModal(modalEl));
     });
-
-    // Click outside (on overlay)
     modalEl.addEventListener("click", (e) => {
       if (e.target === modalEl) closeModal(modalEl);
     });
   });
 
-  // Keyboard handling: Esc to close, Tab to trap focus
+  // Esc + tab trap
   document.addEventListener("keydown", (e) => {
     if (!activeModal) return;
 
@@ -148,7 +148,6 @@ document.addEventListener("click", (e) => {
     }
   });
 });
-
 
 
   // BOOKING SECTION   
@@ -356,7 +355,8 @@ function onYouTubeIframeAPIReady() {
 // ===============================
 // Instagram Carousel - Mobile Friendly
 // ===============================
-// Instagram Carousel - Stable Swipe + Tap-to-Play
+// ===============================
+// Instagram Carousel - Desktop 3 per step, Mobile 1 per step
 // ===============================
 
 const track = document.getElementById("carouselTrack");
@@ -365,16 +365,19 @@ let currentIndex = 0;
 
 // -------------------- Helpers --------------------
 function getSlidesPerView() {
-  return window.innerWidth <= 768 ? 1 : 3;
+  return window.innerWidth <= 768 ? 1 : 3; // 1 on mobile, 3 on desktop
 }
 
 function updateCarousel() {
   const slidesPerView = getSlidesPerView();
   const totalSlides = track.children.length;
-  const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
 
+  // Each step = 1 "page" of slidesPerView items
+  const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
   currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
-  const translateX = (currentIndex * 100) / slidesPerView;
+
+  // Move by full "pages" of slidesPerView
+  const translateX = (currentIndex * 100);
   track.style.transition = "transform 0.3s ease";
   track.style.transform = `translateX(-${translateX}%)`;
 
@@ -397,8 +400,8 @@ function updateCarousel() {
 
 function setupDots() {
   dotsContainer.innerHTML = "";
-  const totalSlides = track.children.length;
   const slidesPerView = getSlidesPerView();
+  const totalSlides = track.children.length;
   const dotCount = Math.ceil(totalSlides / slidesPerView);
 
   for (let i = 0; i < dotCount; i++) {
@@ -417,27 +420,12 @@ let startX = 0,
 let isDragging = false;
 let hasMovedHorizontally = false;
 
-// Overlay only used while dragging
-const overlay = document.createElement("div");
-overlay.style.position = "absolute";
-overlay.style.top = 0;
-overlay.style.left = 0;
-overlay.style.right = 0;
-overlay.style.bottom = 0;
-overlay.style.zIndex = 5;
-overlay.style.pointerEvents = "none"; // allow taps through by default
-overlay.style.display = "none";
-track.style.position = "relative";
-track.appendChild(overlay);
-
 track.addEventListener("touchstart", (e) => {
   startX = e.touches[0].clientX;
   startY = e.touches[0].clientY;
   isDragging = true;
   hasMovedHorizontally = false;
-  track.style.transition = "none";
-  overlay.style.display = "none";
-  overlay.style.pointerEvents = "none"; // allow taps on videos
+  track.style.transition = "none"; // disable transition while dragging
 });
 
 track.addEventListener("touchmove", (e) => {
@@ -448,33 +436,17 @@ track.addEventListener("touchmove", (e) => {
 
   if (!hasMovedHorizontally) {
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
-      hasMovedHorizontally = true;
-      overlay.style.display = "block";
-      overlay.style.pointerEvents = "all"; // block iframe during swipe
-      e.preventDefault();
+      hasMovedHorizontally = true; // horizontal swipe
+      e.preventDefault(); // lock vertical scroll
     } else if (Math.abs(dy) > Math.abs(dx)) {
-      isDragging = false;
-      overlay.style.display = "none";
-      overlay.style.pointerEvents = "none";
+      isDragging = false; // vertical scroll
       return;
     }
-  }
-
-  if (hasMovedHorizontally) {
-    const slidesPerView = getSlidesPerView();
-    const translateX =
-      (currentIndex * 100) / slidesPerView - (dx / track.offsetWidth) * 100;
-    track.style.transform = `translateX(-${translateX}%)`;
   }
 });
 
 track.addEventListener("touchend", (e) => {
-  if (!hasMovedHorizontally) {
-    // Tap passes through to Instagram iframe
-    overlay.style.display = "none";
-    overlay.style.pointerEvents = "none";
-    return;
-  }
+  if (!hasMovedHorizontally) return; // tap goes through
 
   const dx = e.changedTouches[0].clientX - startX;
 
@@ -483,11 +455,15 @@ track.addEventListener("touchend", (e) => {
 
   updateCarousel();
   isDragging = false;
-  overlay.style.display = "none";
-  overlay.style.pointerEvents = "none"; // restore taps
 });
 
-// -------------------- Initialize --------------------
+// -------------------- Arrows --------------------
+function moveCarousel(direction) {
+  currentIndex += direction;
+  updateCarousel();
+}
+
+// -------------------- Init --------------------
 function initializeCarousel() {
   setupDots();
   updateCarousel();
@@ -499,6 +475,8 @@ window.addEventListener("resize", () => {
   setupDots();
   updateCarousel();
 });
+
+
 
   // REVIEW SECTION
 

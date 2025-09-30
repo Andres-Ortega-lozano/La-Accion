@@ -184,12 +184,14 @@ body {
 .cta-button1 {
   display: inline-block;
   padding: 12px 24px;
-  background-color: #f44336;
+
+  background-color: #70d080;
   color: white;
   border: none;
   font-size: 1rem;
   border-radius: 6px;
   text-decoration: none;
+
   margin-bottom: 2rem;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
@@ -322,14 +324,35 @@ body {
   }
 
   .cta-button1 {
-    display: inline-block; /* ensures it fits content */
-    padding: 8px 12px; /* minimal padding around text */
-    font-size: 0.9rem; /* smaller text for mobile */
-    width: auto; /* let it shrink to text */
-    white-space: nowrap; /* keep text in one line */
-    text-align: center; /* center text inside button */
+    display: inline-block;
+    padding: 12px 24px;
+
+    background-color: #70d080;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
   }
 
+  .cta-button {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: none;
+  }
   .cta-button2 {
     display: inline-block; /* ensures it fits content */
     padding: 8px 12px; /* minimal padding around text */
@@ -337,6 +360,7 @@ body {
     width: auto; /* let it shrink to text */
     white-space: nowrap; /* keep text in one line */
     text-align: center; /* center text inside button */
+    display: none;
   }
 }
 
@@ -373,7 +397,7 @@ body {
 .modal {
   display: none;
   position: fixed;
-  z-index: 100;
+  z-index: 999;
   left: 0;
   top: 0;
   width: 100vw;
@@ -397,7 +421,9 @@ body {
 }
 
 /* pdf contract button */
-
+.pdf-contratct {
+  z-index: 1000;
+}
 .download-btn {
   display: inline-block;
   padding: 10px 20px;
@@ -706,6 +732,50 @@ body {
   background-color: #c7bf91;
 }
 
+.cta-button12 {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: none;
+}
+.cta-button11 {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: none;
+}
+
+.cta-button13 {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: none;
+}
+
 /* 📱 Responsive About Section */
 @media (max-width: 1024px) {
   .about {
@@ -755,6 +825,58 @@ body {
     border-radius: 5px;
     box-shadow: 0 0 40px rgba(232, 74, 74, 1);
     background-color: #cac4a0;
+  }
+
+  .cta-button12 {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    z-index: 1000;
+  }
+  .cta-button11 {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    z-index: 1000;
+  }
+  .cta-button13 {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    z-index: 1000;
+  }
+
+  .sobre-accion-title {
+    display: none;
+  }
+
+  .styled-paragraph {
+    display: none;
   }
 }
 
@@ -1017,9 +1139,20 @@ body {
   .video-wrapper iframe {
     height: 100%; /* fills wrapper */
   }
-
+  /*
   .carousel-arrow {
-    display: none; /* hide arrows on mobile */
+    display: none;  hide arrows on mobile 
+  }*/
+  .carousel-arrow {
+    font-size: 2rem;
+    top: 46%;
+  }
+  .carousel-arrow.prev {
+    left: 1px;
+  }
+
+  .carousel-arrow.next {
+    right: 1px;
   }
 
   .carousel-dots {
@@ -1131,43 +1264,25 @@ body {
   background-color: #f44336;
 }
 
-/* ---------- overlay instagram vieeos ---------- */
-
-.embed-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.swipe-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  z-index: 2; /* above iframe */
-  cursor: pointer;
-}
-
-.swipe-overlay.hidden {
-  display: none; /* removed when tapped */
-}
-
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .carousel-slide {
     flex: 0 0 100%;
     padding: 0;
   } /* 1 slide per view */
+  /* .carousel-nav {
+    display: none; 
+  }*/
+  /* hide arrows on mobile */
   .carousel-nav {
-    display: none;
-  } /* hide arrows on mobile */
+    top: 30%;
+  }
+
   .carousel-section {
     padding: 1.5rem 0;
   }
   .carousel-dots {
-    max-width: 120px;
+    max-width: 125px;
   } /* smaller width for mobile dots */
 }
 
