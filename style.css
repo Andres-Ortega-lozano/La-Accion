@@ -327,7 +327,7 @@ body {
     display: inline-block;
     padding: 12px 24px;
 
-    background-color: #70d080;
+    background-color: #f44336;
     color: white;
     border: none;
     font-size: 1rem;
@@ -839,7 +839,6 @@ body {
     margin-bottom: 1rem;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
-    z-index: 1000;
   }
   .cta-button11 {
     display: inline-block;
@@ -854,7 +853,6 @@ body {
     margin-bottom: 1rem;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
-    z-index: 1000;
   }
   .cta-button13 {
     display: inline-block;
@@ -868,7 +866,6 @@ body {
     margin-bottom: 1rem;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
-    z-index: 1000;
   }
 
   .sobre-accion-title {
