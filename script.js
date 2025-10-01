@@ -92,6 +92,13 @@ document.addEventListener("click", (e) => {
     lockScroll();
     activeModal = modalEl;
 
+      // 🔄 Force reload of PDF every time modal opens
+  const embed = modalEl.querySelector("embed.pdf-contract");
+  if (embed) {
+    const src = embed.getAttribute("src");
+    embed.setAttribute("src", src + "#t=" + new Date().getTime());
+  }
+
     const first = getFocusables(modalEl)[0] || modalEl.querySelector(".modal-content") || modalEl;
     first.focus();
   }

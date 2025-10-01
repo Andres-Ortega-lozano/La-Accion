@@ -777,7 +777,7 @@ body {
 }
 
 /* 📱 Responsive About Section */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .about {
     flex-direction: column; /* stack content */
     height: auto; /* let it expand naturally */

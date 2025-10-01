@@ -169,23 +169,24 @@
     <!-- Hero Section Modal Window2 -->
 
     <div id="contractExampleModal" class="modal">
-      <div class="modal-content">
+      <div class="modal-content" >
         <span class="close second">&times;</span>
 
         <h2>Contrato</h2>
 
         <!-- PDF Preview -->
         <embed
-          src="assets/Contrato la acción.pdf"
+          src="assets/Contrato-la-accion.pdf"
           type="application/pdf"
           width="100%"
           height="700px"
           style="border: 1px solid #ffffff; border-radius: 10px"
+          class="pdf-contract"
         />
 
         <!-- Download Button -->
         <div style="margin-top: 1rem; text-align: center">
-          <a href="assets/Contrato la acción.pdf" download class="download-btn">
+          <a href="assets/Contrato-la-accion.pdf" download class="download-btn">
             Descargar Contrato (PDF)
           </a>
         </div>
@@ -321,7 +322,7 @@
               <!-- Desktop Embed -->
               <div class="pdf-desktop">
                 <embed
-                  src="assets/Contrato la acción.pdf"
+                  src="assets/Contrato-la-accion.pdf"
                   type="application/pdf"
                   width="100%"
                   height="700px"
@@ -329,11 +330,12 @@
                   class="pdf-contract"
                 />
               </div>
+
           
               <!-- Mobile Button -->
               <div class="pdf-mobile" style="display:none; text-align:center; margin-top:1rem;">
                 <a 
-                  href="assets/Contrato la acción.pdf" 
+                  href="assets/Contrato-la-accion.pdf" 
                   target="_blank" 
                   class="download-btn">
                   Ver Contrato (PDF)
@@ -343,7 +345,7 @@
               <!-- Download Button (still visible for everyone if you want) -->
               <div style="margin-top: 1rem; text-align: center">
                 <a
-                  href="assets/Contrato la acción.pdf"
+                  href="assets/Contrato-la-accion.pdf"
                   download
                   class="download-btn"
                 >
@@ -354,12 +356,14 @@
           </div>
           
           <style>
-          /* Hide/Show depending on screen size */
-          @media (max-width: 768px) {
-            .pdf-desktop { display: none; }
-            .pdf-mobile { display: block !important; }
-          }
-          </style>
+            /* Hide/Show depending on screen size */
+            @media (max-width: 768px) {
+              .pdf-desktop { display: none; }
+              
+              .pdf-mobile { display: block !important; }
+            }
+            </style>
+  
           
 
         <!-- About Modal Window 3 -->
